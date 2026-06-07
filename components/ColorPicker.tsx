@@ -41,7 +41,6 @@ export default function ColorPicker({ color, onChange }: Props) {
     const value = e.target.value.toUpperCase();
     setHexInput(value);
     
-    // Validiraj i primijeni ako je ispravan hex
     if (/^#[0-9A-F]{6}$/i.test(value)) {
       const rgb = hexToRgb(value);
       const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
@@ -53,10 +52,20 @@ export default function ColorPicker({ color, onChange }: Props) {
   };
   
   const handleHexBlur = () => {
-    // Ako nije validan hex, vrati na trenutnu boju
     if (!/^#[0-9A-F]{6}$/i.test(hexInput)) {
       setHexInput(color.toUpperCase());
     }
+  };
+  
+  // Dohvati koordinate s miša ili toucha
+  const getClientCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
+    if ('touches' in e) {
+      // Touch event
+      const touch = e.touches[0];
+      return { clientX: touch.clientX, clientY: touch.clientY };
+    }
+    // Mouse event
+    return { clientX: e.clientX, clientY: e.clientY };
   };
   
   const handleSaturationMove = (clientX: number, clientY: number) => {
@@ -98,28 +107,53 @@ export default function ColorPicker({ color, onChange }: Props) {
     updateColor(clampedH, clampedS, clampedL);
   };
   
+  // Mouse/Touch start handlers
+  const handleSaturationStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    const { clientX, clientY } = getClientCoordinates(e);
+    handleSaturationMove(clientX, clientY);
+  };
+  
+  const handleHueStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsDraggingHue(true);
+    const { clientX } = getClientCoordinates(e);
+    handleHueMove(clientX);
+  };
+  
+  // Global event listeners za drag
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (e: MouseEvent | TouchEvent) => {
       if (isDragging) {
-        handleSaturationMove(e.clientX, e.clientY);
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+        handleSaturationMove(clientX, clientY);
       } else if (isDraggingHue) {
-        handleHueMove(e.clientX);
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        handleHueMove(clientX);
       }
     };
     
-    const handleMouseUp = () => {
+    const handleEnd = () => {
       setIsDragging(false);
       setIsDraggingHue(false);
     };
     
     if (isDragging || isDraggingHue) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('mouseup', handleEnd);
+      window.addEventListener('touchmove', handleMove);
+      window.addEventListener('touchend', handleEnd);
+      window.addEventListener('touchcancel', handleEnd);
     }
     
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleEnd);
+      window.removeEventListener('touchcancel', handleEnd);
     };
   }, [isDragging, isDraggingHue, hue, saturation, lightness]);
   
@@ -132,18 +166,16 @@ export default function ColorPicker({ color, onChange }: Props) {
       <div className="space-y-2">
         <div 
           ref={saturationRef}
-          className="relative w-full aspect-square rounded-xl cursor-pointer overflow-hidden shadow-lg"
+          className="relative w-full aspect-square rounded-xl cursor-pointer touch-none overflow-hidden shadow-lg"
           style={{ background: `hsl(${hue}, 100%, 50%)` }}
-          onMouseDown={(e) => {
-            setIsDragging(true);
-            handleSaturationMove(e.clientX, e.clientY);
-          }}
+          onMouseDown={handleSaturationStart}
+          onTouchStart={handleSaturationStart}
         >
           <div className="absolute inset-0" style={{ background: `linear-gradient(to right, white, transparent)` }} />
           <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, transparent, black)` }} />
           
           <div
-            className="absolute w-4 h-4 rounded-full border-2 border-white shadow-lg transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
             style={{
               left: `${(saturation / 100) * 100}%`,
               top: `${100 - (lightness / 100) * 100}%`,
@@ -157,15 +189,13 @@ export default function ColorPicker({ color, onChange }: Props) {
       <div className="space-y-2">
         <div 
           ref={hueRef}
-          className="relative h-8 rounded-xl cursor-pointer overflow-hidden shadow-lg"
+          className="relative h-8 rounded-xl cursor-pointer touch-none overflow-hidden shadow-lg"
           style={{ background: 'linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' }}
-          onMouseDown={(e) => {
-            setIsDraggingHue(true);
-            handleHueMove(e.clientX);
-          }}
+          onMouseDown={handleHueStart}
+          onTouchStart={handleHueStart}
         >
           <div
-            className="absolute w-3 h-8 bg-white rounded shadow-lg transform -translate-x-1/2 pointer-events-none"
+            className="absolute w-4 h-8 bg-white rounded shadow-lg transform -translate-x-1/2 pointer-events-none"
             style={{ left: `${(hue / 360) * 100}%` }}
           />
         </div>
@@ -175,7 +205,7 @@ export default function ColorPicker({ color, onChange }: Props) {
       <div className="flex gap-2">
         <button
           onClick={() => setInputMode('hex')}
-          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
             inputMode === 'hex' 
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
               : 'bg-white/10 hover:bg-white/20 text-white/80'
@@ -185,7 +215,7 @@ export default function ColorPicker({ color, onChange }: Props) {
         </button>
         <button
           onClick={() => setInputMode('hsl')}
-          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
             inputMode === 'hsl' 
               ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
               : 'bg-white/10 hover:bg-white/20 text-white/80'
@@ -195,7 +225,7 @@ export default function ColorPicker({ color, onChange }: Props) {
         </button>
       </div>
       
-      {/* Input tabs  - HEX or HSL */}
+      {/* Input tabs - HEX or HSL */}
       <div className="flex gap-2">
         <div 
           className="w-10 h-10 rounded-xl shadow-lg cursor-pointer transition-transform hover:scale-105"
@@ -289,7 +319,7 @@ export default function ColorPicker({ color, onChange }: Props) {
   );
 }
 
-// Helper funkcije
+// Helper funkcije (iste kao prije)
 function hexToRgb(hex: string) {
   const r = parseInt(hex.slice(1,3), 16);
   const g = parseInt(hex.slice(3,5), 16);
