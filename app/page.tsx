@@ -93,8 +93,8 @@ export default function Home() {
       <Navbar />
       <Toaster position="top-right" />
       
-      <main className="bg-gradient-to-br min-h-screen pr-8">
-        <div className="max-w-7xl mx-auto">
+      <main className="bg-gradient-to-br min-h-screen p4 pr-8">
+        <div className="max-w-7xl p-4 mx-auto">
           
           {/* Hero header */}
           <div className="text-center mb-10">
