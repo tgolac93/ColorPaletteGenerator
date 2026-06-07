@@ -122,7 +122,7 @@ export default function Home() {
           </div>
 
           {/* Color Grid */}
-          <div className="grid grid-cols-5 md:grid-cols-5 gap-4 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10 justify-items-center place-items-center">
             {colors.map((color, i) => (
               <div key={i} className="relative w-full max-w-[200px]">
                 <ColorBox
@@ -161,16 +161,16 @@ export default function Home() {
             </div>
           </div>  
           
-          {/* Preview */}
-          <div className="bg-white/5 backdrop-blur rounded-2xl mb-4 p-6 text-center">
+          {/* Live Preview */}
+          <div className="bg-white/5 backdrop-blur rounded-2xl mb-10 p-6 text-center">
             <p className="text-sm text-white/50 mb-2">Live Preview</p>
             <div className="h-16 rounded-xl" style={{
               background: `linear-gradient(90deg, ${colors.join(', ')})`
             }} />
           </div>
           
-          {/* Export sekcija */}
-          <div className="grid md:grid-cols-1 gap-6 mb-10">
+          {/* Export section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
             <div className="bg-white/5 backdrop-blur rounded-2xl p-6">
               <h3 className="font-semibold mb-4 text-white/80">📤 Export Palette</h3>
               <ExportMenu colors={colors} colorNames={colorNames} />
