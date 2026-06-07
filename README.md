@@ -9,7 +9,7 @@
 
 A beautiful and powerful color palette generator with real-time preview, advanced color picker, and multiple export formats.
 
-[Live Demo](https://color-palette-generator.vercel.app) · [Report Bug](https://github.com/tgolac93/ColorPaletteGenerator/issues) · [Request Feature](https://github.com/tgolac93/ColorPaletteGenerator/issues)
+[Live Demo](https://color-palette-generator-smoky.vercel.app/?_vercel_share=xeAyAfEpkRNK6uEprgLJB8vTHSpv9QNV) · [Report Bug](https://github.com/tgolac93/ColorPaletteGenerator/issues) · [Request Feature](https://github.com/tgolac93/ColorPaletteGenerator/issues)
 
 </div>
 
