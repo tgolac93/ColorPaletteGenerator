@@ -139,7 +139,7 @@ export default function Home() {
           </div>
           
           {/* Action buttons */}
-          <div className="flex justify-center gap-4 mb-10">
+          <div className="flex flex-col md:flex-row p-4 justify-center items-center gap-4 mb-10">
             <button
               onClick={randomize}
               className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all flex items-center gap-2 text-white font-medium"
@@ -170,7 +170,7 @@ export default function Home() {
           </div>
           
           {/* Export section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
             <div className="bg-white/5 backdrop-blur rounded-2xl p-6">
               <h3 className="font-semibold mb-4 text-white/80">📤 Export Palette</h3>
               <ExportMenu colors={colors} colorNames={colorNames} />
