@@ -43,7 +43,7 @@ A beautiful and powerful color palette generator with real-time preview, advance
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js
 - npm or yarn
 
 ### Installation
